@@ -5,8 +5,8 @@ import { Content } from "./Content/Content";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const handleLogin = (username, password) => {
-    fetch('https://untiwedev.ru/api/Auth/GetToken', {
+  const handleLogin = async (username, password) => {
+    const res = await fetch('https://untiwedev.ru/api/Auth/GetToken', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -14,18 +14,21 @@ function App() {
       body: JSON.stringify({
         login: `${username}`,
         password: `${password}`
-    })
-    })
-    .then(res => {
-      if(res.ok) {
-        return res.json();
-      }
-      throw new Error('Не верный логин или пароль');
-    })
-      .then(data => {
-        console.log(data.token)
       })
-      .catch(err => console.log(err))
+    })
+    setIsAuthenticated(await res.text())
+    
+    // .then(res => {
+    //   console.log(res.text());
+    //   if(res.ok) {
+    //     return res;
+    //   }
+    //   throw new Error('Не верный логин или пароль');
+    // })
+    // .then(data => {
+    //   console.log(data)
+    // })
+    // .catch(err => console.log(err))
   }
   const handleLogout = () => {
     setIsAuthenticated(false);
