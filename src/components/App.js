@@ -1,45 +1,41 @@
 import React, { useState } from "react";
-import { LoginPage } from "./LoginPage/LoginPage";
-import { Content } from "./Content/Content";
+import { Login } from "./Login";
+import { Content } from "./Content";
+import { Registration } from "./Registration";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const handleLogin = async (username, password) => {
-    const res = await fetch('https://untiwedev.ru/api/Auth/GetToken', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        login: `${username}`,
-        password: `${password}`
-      })
-    })
-    setIsAuthenticated(await res.text())
-    
-    // .then(res => {
-    //   console.log(res.text());
-    //   if(res.ok) {
-    //     return res;
-    //   }
-    //   throw new Error('Не верный логин или пароль');
-    // })
-    // .then(data => {
-    //   console.log(data)
-    // })
-    // .catch(err => console.log(err))
+  const [loggedIn, setLoggedIn] = useState(false);
+  const navigate = useNavigate()
+
+  const handleLogin = () => {
+    setLoggedIn(true);
   }
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
+
+  function handleExit() {
+    localStorage.clear()
+    setLoggedIn(false)
+  }
+
   return (
-    isAuthenticated ? (
-      <Content onLogout={handleLogout} />
-    ) : (
-      <LoginPage onLogin={handleLogin} />
-    )
-  );
+    <>
+      <Routes>
+        <Route path="/content" element={<ProtectedRoute element={Content} loggedIn={loggedIn} />} />
+        <Route path="/login" element={
+          <div className="authForm">
+            <Login handleLogin={handleLogin}/>
+          </div>} />
+        <Route path="/registration" element={
+          <div className="authForm">
+            <Registration />
+          </div>} />
+        <Route path="/" element={loggedIn ? <Navigate to='/content' /> : <Navigate to='/login' replace />} />
+      </Routes>
+    </>
+
+  )
 }
 
 export default App;
